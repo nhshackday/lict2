@@ -27,14 +27,11 @@ proxies = None
 #  stream – (optional) if False, the response content will be immediately downloaded.
 #  cert – (optional) if String, path to ssl client cert file (.pem). If Tuple, (‘cert’, ‘key’) pair.
 
-resp = requests.request(
-		method="GET",
-		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe?SWECmd=GotoView&SWEView=GMC+WEB+Doctor+Search&SWEApplet=GMC+WEB+Health+Provider+Search+Applet",
-		headers = {
-			"Referer": "http://www.gmc-uk.org/doctors/register/LRMP.asp",
-		},
-#		proxies = { "http": "http://localhost:8888/" }
-		)
+def chunks(l, n):
+	""" Yield successive n-sized chunks from l.
+	"""
+	for i in xrange(0, len(l), n):
+		yield l[i:i+n]
 
 def fail(msg, resp):
 	print "%s :("
@@ -49,6 +46,15 @@ def gents():
 def gents_milli():
 	dt = datetime.datetime.now()
 	return "%i" % (time.mktime(dt.timetuple()) * 1000 + (dt.microsecond / 1000))
+
+resp = requests.request(
+		method="GET",
+		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe?SWECmd=GotoView&SWEView=GMC+WEB+Doctor+Search&SWEApplet=GMC+WEB+Health+Provider+Search+Applet",
+		headers = {
+			"Referer": "http://www.gmc-uk.org/doctors/register/LRMP.asp",
+		},
+		proxies = proxies
+		)
 
 if resp.status_code != 200:
 	fail("Getting session failed", resp)
@@ -138,36 +144,27 @@ def gen_request_params(swec=2, ids=[]):
 		"SWETA":            "",
 	}
 
+# dummy request because... just because
+swec = 1
 resp = requests.request(
 		method="POST",
 		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
 		proxies = proxies,
-		data = gen_request_params(swec=2),
+		data = gen_request_params(swec=swec),
 		)
 
-f = open("result1.html", "w")
-f.write(resp.text.encode('utf-8'))
-f.close()
-
-resp = requests.request(
-		method="POST",
-		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
-		proxies = proxies,
-		data = gen_request_params(swec=4, ids=[3527470, 6076364, 4463788]),
-		)
-
-f = open("result2.html", "w")
-f.write(resp.text.encode('utf-8'))
-f.close()
-
-resp = requests.request(
-		method="POST",
-		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
-		proxies = proxies,
-		data = gen_request_params(swec=6, ids=[7033156, 6077178, 6077125]),
-		)
-
-f = open("result3.html", "w")
-f.write(resp.text.encode('utf-8'))
-f.close()
+gmcids = range(6077000,6078000)
+for id_chunk in chunks(gmcids, 10):
+	swec = swec + 1
+	print "sending request for swec %i" % swec
+	id_strs = ["%07i" % i for i in id_chunk]
+	resp = requests.request(
+			method="POST",
+			url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
+			proxies = proxies,
+			data = gen_request_params(swec=swec, ids=id_strs),
+			)
+	f = open("result%i.html" % swec, "w")
+	f.write(resp.text.encode('utf-8'))
+	f.close()
 
