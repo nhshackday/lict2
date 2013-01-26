@@ -1,0 +1,4 @@
+
+
+==  Run parse.py with
+`foreman run -e conf/env.parse python parse.py`
