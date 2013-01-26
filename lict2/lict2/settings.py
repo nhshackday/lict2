@@ -1,4 +1,6 @@
 # Django settings for lict2 project.
+import os
+import mongoengine
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -119,6 +121,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'conflict',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -149,3 +152,5 @@ LOGGING = {
         },
     }
 }
+
+mongoengine.connect('xxx', host=os.environ['MONGODB_URL']) #TODO At some point, work out a less icky way of doing this...
