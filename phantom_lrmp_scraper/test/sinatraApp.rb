@@ -1,18 +1,18 @@
-#require 'rubygems'
 require 'sinatra'
-#require 'sinatra/reloader'
-require 'sinatra/content_for'
-require 'sinatra/partial'
 require 'json'
 
 require 'pry'
 
-set :partial_template_engine, :erb
-enable :partial_underscores
-enable :sessions
-#set :public_folder, File.dirname(__FILE__) + '/' #serve everything
-@@test_data ||= {}
+#  from lict2/lrmp_scraper/test   run with `ruby sinatraApp.rb -p 4000`
 
-get '/' do
-  "SINATRA IS READY on port: #{settings.port}"
+
+#not in use, if we run into trouble navigating frames then we'll come back here to learn
+
+get '/frame2-3.html' do
+  sleep 10
+  send_file File.join(File.dirname(__FILE__), "/webpage-spec-frames/frame2-3.html")
+end
+
+get '/:file' do
+  send_file File.join(File.dirname(__FILE__), "/webpage-spec-frames/#{params[:file]}")
 end
