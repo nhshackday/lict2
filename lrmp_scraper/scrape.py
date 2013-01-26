@@ -38,6 +38,7 @@ def fail(msg, resp):
 	pprint.pprint(resp.status_code)
 	pprint.pprint(resp.headers)
 	pprint.pprint(resp.text)
+	sys.exit(1)
 
 def gents():
 	dt = datetime.datetime.now()
@@ -47,57 +48,7 @@ def gents_milli():
 	dt = datetime.datetime.now()
 	return "%i" % (time.mktime(dt.timetuple()) * 1000 + (dt.microsecond / 1000))
 
-resp = requests.request(
-		method="GET",
-		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe?SWECmd=GotoView&SWEView=GMC+WEB+Doctor+Search&SWEApplet=GMC+WEB+Health+Provider+Search+Applet",
-		headers = {
-			"Referer": "http://www.gmc-uk.org/doctors/register/LRMP.asp",
-		},
-		proxies = proxies
-		)
-
-if resp.status_code != 200:
-	fail("Getting session failed", resp)
-
-
-sn = re.search('<input type = "hidden" name="_sn" value="([^"]*)">', resp.text)
-if not sn:
-	fail("Could not find session number", resp)
-
-session = sn.group(1)
-
-print "Got session: %s" % session
-
-params = {
-	"SWECmd": "GotoView",
-	"_sn": session,
-	"SWEView": "GMC+WEB+Doctor+Search",
-	"SRN": "",
-	"SWEHo": "webcache.gmc-uk.org",
-	"SWETS": gents(),
-	"SWEApplet": "GMC WEB Health Provider Search Applet",
-}
-
-resp = requests.request(
-		method="GET",
-		params=params,
-		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
-		proxies=proxies,
-		)
-
-if resp.status_code != 200:
-	fail("Request for SWEBID failed", resp)
-
-m = re.search("<script language=\"javascript\">navigator.id = \"([0-9]*)\";</script>", resp.text)
-
-if not m:
-	fail("Could not find SWEBID", resp)
-
-swebid = m.group(1)
-
-print "Got SWEBID: %s" % swebid
-
-def gen_request_params(swec=2, ids=[]):
+def gen_request_params(session=None, swec=2, ids=[]):
 	return {
 		"s_1_1_2_0":        str(ids[0]) if len(ids)>0 else "",
 		"s_1_1_4_0":        str(ids[1]) if len(ids)>1 else "",
@@ -144,27 +95,80 @@ def gen_request_params(swec=2, ids=[]):
 		"SWETA":            "",
 	}
 
-# dummy request because... just because
-swec = 1
-resp = requests.request(
-		method="POST",
-		url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
-		proxies = proxies,
-		data = gen_request_params(swec=swec),
-		)
 
-gmcids = range(6077000,6078000)
-for id_chunk in chunks(gmcids, 10):
-	swec = swec + 1
-	print "sending request for swec %i" % swec
-	id_strs = ["%07i" % i for i in id_chunk]
+def scrape(chunk_list):
+	# login #1
+	resp = requests.request(
+			method="GET",
+			url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe?SWECmd=GotoView&SWEView=GMC+WEB+Doctor+Search&SWEApplet=GMC+WEB+Health+Provider+Search+Applet",
+			headers = {
+				"Referer": "http://www.gmc-uk.org/doctors/register/LRMP.asp",
+			},
+			proxies = proxies
+			)
+	if resp.status_code != 200:
+		fail("Getting session failed", resp)
+	sn = re.search('<input type = "hidden" name="_sn" value="([^"]*)">', resp.text)
+	if not sn:
+		fail("Could not find session number", resp)
+	session = sn.group(1)
+	print "Got session: %s" % session
+
+	# login #2
+	params = {
+		"SWECmd": "GotoView",
+		"_sn": session,
+		"SWEView": "GMC+WEB+Doctor+Search",
+		"SRN": "",
+		"SWEHo": "webcache.gmc-uk.org",
+		"SWETS": gents(),
+		"SWEApplet": "GMC WEB Health Provider Search Applet",
+	}
+	resp = requests.request(
+			method="GET",
+			params=params,
+			url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
+			proxies=proxies,
+			)
+	if resp.status_code != 200:
+		fail("Request for SWEBID failed", resp)
+	m = re.search("<script language=\"javascript\">navigator.id = \"([0-9]*)\";</script>", resp.text)
+	if not m:
+		fail("Could not find SWEBID", resp)
+	swebid = m.group(1)
+	print "Got SWEBID: %s" % swebid
+
+	# dummy request because... just because
+	swec = 1
 	resp = requests.request(
 			method="POST",
 			url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
 			proxies = proxies,
-			data = gen_request_params(swec=swec, ids=id_strs),
+			data = gen_request_params(swec=swec, session=session),
 			)
-	f = open("result%i.html" % swec, "w")
-	f.write(resp.text.encode('utf-8'))
-	f.close()
+
+	for chunk in chunk_list:
+		swec = swec + 1
+		print "sending request for swec %i" % swec
+		id_chunk = range(chunk * 10, (chunk+1)*10)
+		id_strs = ["%07i" % i for i in id_chunk]
+		resp = requests.request(
+				method="POST",
+				url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
+				proxies = proxies,
+				data = gen_request_params(swec=swec, session=session, ids=id_strs),
+				)
+
+		fn_num = "%06i" % chunk
+		fn_nums = list(chunks(fn_num,2))
+		fn_nums[-1] += ".html"
+		fn = os.path.join("data", *fn_nums)
+		if not os.path.exists(os.path.dirname(fn)):
+			os.makedirs(os.path.dirname(fn))
+		f = open(fn, "w")
+		f.write(resp.text.encode('utf-8'))
+		f.close()
+
+if len(sys.argv) == 3:
+	scrape(range(int(sys.argv[1]), int(sys.argv[2])))
 
