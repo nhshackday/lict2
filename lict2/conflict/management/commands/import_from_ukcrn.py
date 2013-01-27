@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        Study.objects.delete() #TODO Sanity
         for file_name in args:
             logger.info("Starting import from %s" % file_name)
             with open(file_name, 'rb') as data_file:
@@ -40,7 +39,7 @@ class Command(BaseCommand):
                     if len(td.contents) > 1:
                         return td.contents[0].strip()
 
-                ukcrn_id = find_Cell_from_title("UKCRN ID")
+                ukcrn_id = int(find_Cell_from_title("UKCRN ID"))
                 (study, _) = Study.objects.get_or_create(ukcrn_id=ukcrn_id)
                 study.funder = find_Cell_from_title("Funder(s)")
                 study.sponsor = find_Cell_from_title("Sponsor(s)")
