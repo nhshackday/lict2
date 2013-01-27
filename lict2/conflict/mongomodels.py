@@ -13,3 +13,17 @@ class Doctor(Document):
     given_names = StringField()
     gmc_reference_number = IntField(unique=True)
     registration_date = StringField()
+
+class Study(Document):
+    """
+    http://public.ukcrn.org.uk/search/StudyDetail.aspx?StudyID=9250
+    """
+    name = StringField()
+    ukcrn_id = IntField(unique=True)
+    funder = StringField()
+    sponsor = StringField()
+    chief_investigator = StringField()
+
+    @property
+    def url(self):
+        return "http://public.ukcrn.org.uk/search/StudyDetail.aspx?StudyID=%d" % self.ukcrn_id
