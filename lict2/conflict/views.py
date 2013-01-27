@@ -34,3 +34,8 @@ class InterestingDoctorListView(DoctorListView):
 
 class SearchView(TemplateView):
     template_name = "conflict/search.html"
+
+
+class SearchViewResults(TemplateView):
+
+    template_name = "conflict/search_results.html"
