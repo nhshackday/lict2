@@ -30,3 +30,7 @@ class LandingPage(TemplateView):
 class InterestingDoctorListView(DoctorListView):
     def get_queryset(self):
         return Doctor.objects.filter(studies__exists=True).order_by("surname")
+
+
+class SearchView(TemplateView):
+    template_name = "conflict/search.html"
