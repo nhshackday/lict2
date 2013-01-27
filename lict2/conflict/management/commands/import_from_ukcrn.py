@@ -23,15 +23,15 @@ class Command(BaseCommand):
 
                     # ARGH
 
+                    def find_TitleCell_by_content(content):
+                        """
+                                                    I'm so so sorry
+                                                    """
+                        cells = doc.find_all(class_="TitleCell")
+                        for cell in cells:
+                            if cell.string.strip() == content:
+                                return cell
                     def find_Cell_from_title(title):
-                        def find_TitleCell_by_content(content):
-                            """
-                            I'm so so sorry
-                            """
-                            cells = doc.find_all(class_="TitleCell")
-                            for cell in cells:
-                                if cell.string.strip() == content:
-                                    return cell
                         title_cell = find_TitleCell_by_content(title)
                         tr = title_cell.parent
                         td = tr.find(class_="Cell")
@@ -45,6 +45,10 @@ class Command(BaseCommand):
                     study.name = doc.find_all("p", align="justify")[0].string.strip()
                     study.funder = find_Cell_from_title("Funder(s)")
                     study.sponsor = find_Cell_from_title("Sponsor(s)")
+                    chief_investigator_title_cell = find_TitleCell_by_content("Chief Investigator(s)")
+                    icky_table_in_a_table = chief_investigator_title_cell.parent.parent
+                    chief_investigator_cell = icky_table_in_a_table.find("td", class_="Cell")
+                    study.chief_investigator = chief_investigator_cell.string.strip()
                     study.save()
                 except Exception as e: # I AM A VERY VERY BAD PERSON
                     logger.warn(e)
