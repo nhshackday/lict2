@@ -1,7 +1,6 @@
 # Create your views here.
 from django.views.generic.base import RedirectView
 from django.views.generic.list import ListView
-
 #from django.core.paginator import Paginator
 from .mongomodels import Doctor, Study
 import pdb
