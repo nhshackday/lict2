@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        Study.objects.delete() #TODO Sanity
         for file_name in args:
             logger.info("Starting import from %s" % file_name)
-            Study.objects.delete() #TODO Sanity
             with open(file_name, 'rb') as data_file:
                 html_doc = data_file.read()
 
