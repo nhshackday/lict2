@@ -29,4 +29,4 @@ class LandingPage(TemplateView):
 
 class InterestingDoctorListView(DoctorListView):
     def get_queryset(self):
-        return Doctor.objects.filter(studies__exists=True)
+        return Doctor.objects.filter(studies__exists=True).order_by("surname")
