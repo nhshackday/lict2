@@ -14,6 +14,14 @@
                 <td>{{ doctor.gmc_reference_number }}</td>
                 <td>{{ doctor.given_names }}</td>
                 <td>{{ doctor.surname }}</td>
+                <td>
+                    <ul>
+                        {% for study in doctor.studies %}
+                            <li>{{ study.funder }}</li>
+                            <li>{{ study.sponsor}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
             </tr>
         {% endfor %}
     </table>
