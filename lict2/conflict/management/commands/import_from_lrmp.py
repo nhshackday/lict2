@@ -60,7 +60,9 @@ class Command(BaseCommand):
 
                         v[0] = year
                         value2 = '-'.join(v)
-                        doctor.registration_date = value2
+                        doctor.registration_date = value2  # obviously don't understand
+                        # mongoengine yet.  This fails validation if used as DateTime,
+                        # so using as string.
                     elif column == 6:
                         # annual fee due date
                         pass
