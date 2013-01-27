@@ -41,6 +41,7 @@ class Command(BaseCommand):
 
                 ukcrn_id = int(find_Cell_from_title("UKCRN ID"))
                 (study, _) = Study.objects.get_or_create(ukcrn_id=ukcrn_id)
+                study.name = doc.find_all("p", align="justify")[0].string.strip()
                 study.funder = find_Cell_from_title("Funder(s)")
                 study.sponsor = find_Cell_from_title("Sponsor(s)")
                 study.save()
