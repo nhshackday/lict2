@@ -8,7 +8,6 @@ from .views import RootRedirect
 
 urlpatterns = patterns('conflict.views',
     url(r'^doctors/$', DoctorListView.as_view()),
-    url(r'^doctors/(?P<page>[0-9]+)/$', DoctorListView.as_view()),
     url(r'^studies/$', StudyListView.as_view()),
     url(r'^$', RootRedirect.as_view()),
 )

@@ -10,13 +10,15 @@ class RootRedirect(RedirectView):
     permanent = False
 
 class DoctorListView(ListView):
-    queryset = Doctor.objects.all()
-    #paginator = Paginator(queryset)
+    def get_queryset(self):
+        return Doctor.objects.all()
     paginate_by = 2
     context_object_name = 'doctor_list'
     template_name = "conflict/doctor_list.html"
 
 class StudyListView(ListView):
-    queryset = Study.objects.all()
+    def get_queryset(self):
+        return Study.objects.all()
+    paginate_by = 10
     context_object_name = 'study_list'
     template_name = 'conflict/study_list.html'
