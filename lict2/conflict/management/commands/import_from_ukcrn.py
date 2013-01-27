@@ -35,10 +35,15 @@ class Command(BaseCommand):
                     title_cell = find_TitleCell_by_content(title)
                     tr = title_cell.parent
                     td = tr.find(class_="Cell")
-                    return td.string
+                    if td.string:
+                        return td.string.strip()
+                    if len(td.contents) > 1:
+                        return td.contents[0].strip()
 
                 ukcrn_id = find_Cell_from_title("UKCRN ID")
                 (study, _) = Study.objects.get_or_create(ukcrn_id=ukcrn_id)
+                study.funder = find_Cell_from_title("Funder(s)")
+                study.sponsor = find_Cell_from_title("Sponsor(s)")
                 study.save()
 
             logger.info("Finished import from %s" % file_name)
