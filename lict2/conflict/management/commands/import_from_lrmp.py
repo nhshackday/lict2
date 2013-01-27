@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def post_hoc_fiddling(doctor):
     approximate_doctor_first_name = doctor.given_names.split()[0]
     approximate_doctor_name = "%s %s" % (approximate_doctor_first_name, doctor.surname)
-    possible_studies = Study.objects.filter(chief_investigator__contains=re.compile(approximate_doctor_name))
+    possible_studies = Study.objects.filter(chief_investigator__contains=approximate_doctor_name)
     doctor.studies = possible_studies
     doctor.save()
 
