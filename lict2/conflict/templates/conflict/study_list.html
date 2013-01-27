@@ -1,36 +1,40 @@
-<table>
-    <thead>
-    <tr>
-        <th>UKCRN id</th>
-        <th>Name</th>
-        <th>Funder</th>
-        <th>Sponsor</th>
-        <th>Chief Investigator</th>
-    </tr>
-    </thead>
-    {% for study in study_list %}
+{% extends "conflict/base.html" %}
+
+{% block content %}
+    <table class="table">
+        <thead>
         <tr>
-            <td>{{ study.ukcrn_id }}</td>
-            <td>{{ study.name }}</td>
-            <td>{{ study.funder }}</td>
-            <td>{{ study.sponsor }}</td>
-            <td>{{ study.chief_investigator }}</td>
+            <th>UKCRN id</th>
+            <th>Name</th>
+            <th>Funder</th>
+            <th>Sponsor</th>
+            <th>Chief Investigator</th>
         </tr>
-    {% endfor %}
-</table>
+        </thead>
+        {% for study in study_list %}
+            <tr>
+                <td>{{ study.ukcrn_id }}</td>
+                <td>{{ study.name }}</td>
+                <td>{{ study.funder }}</td>
+                <td>{{ study.sponsor }}</td>
+                <td>{{ study.chief_investigator }}</td>
+            </tr>
+        {% endfor %}
+    </table>
 
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
 
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+            {% endif %}
         </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-        {% endif %}
-    </span>
-</div>
+    </div>
+{% endblock %}
