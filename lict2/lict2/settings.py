@@ -162,7 +162,7 @@ LOGGING = {
         },
         'conflict': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'WARN',
             'propagate': True,
         }
     }
