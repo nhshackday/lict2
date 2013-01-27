@@ -57,21 +57,24 @@ class Command(BaseCommand):
                             # prov reg date
                             pass
                         elif column == 5:
-                            # full reg date
-                            v = value.split('/')
-                            v.reverse()
-
-                            year = int(v[0])
-                            if year > 14: #blerghh
-                                year = '19%02s' % year
+                            if value == "N/A":
+                                doctor.registration_date
                             else:
-                                year = '20%02s' % year
+                                # full reg date
+                                v = value.split('/')
+                                v.reverse()
 
-                            v[0] = year
-                            value2 = '-'.join(v)
-                            doctor.registration_date = value2  # obviously don't understand
-                            # mongoengine yet.  This fails validation if used as DateTime,
-                            # so using as string.
+                                year = int(v[0])
+                                if year > 14: #blerghh
+                                    year = '19%02s' % year
+                                else:
+                                    year = '20%02s' % year
+
+                                v[0] = year
+                                value2 = '-'.join(v)
+                                doctor.registration_date = value2  # obviously don't understand
+                                # mongoengine yet.  This fails validation if used as DateTime,
+                                # so using as string.
                         elif column == 6:
                             # annual fee due date
                             pass
