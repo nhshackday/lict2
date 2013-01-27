@@ -1,0 +1,20 @@
+<table>
+    <thead>
+    <tr>
+        <th>UKCRN id</th>
+        <th>Name</th>
+        <th>Funder</th>
+        <th>Sponsor</th>
+        <th>Chief Investigator</th>
+    </tr>
+    </thead>
+    {% for study in study_list %}
+        <tr>
+            <td>{{ study.ukcrn_id }}</td>
+            <td>{{ study.name }}</td>
+            <td>{{ study.funder }}</td>
+            <td>{{ study.sponsor }}</td>
+            <td>{{ study.chief_investigator }}</td>
+        </tr>
+    {% endfor %}
+</table>

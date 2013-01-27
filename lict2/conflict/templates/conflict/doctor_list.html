@@ -1,4 +1,11 @@
 <table>
+    <thead>
+        <tr>
+            <th><a href="http://www.gmc-uk.org/">GMC id</a></th>
+            <th>Given name(s)</th>
+            <th>Surname</th>
+        </tr>
+    </thead>
     {% for doctor in doctor_list %}
         <tr>
             <td>{{ doctor.gmc_reference_number }}</td>
