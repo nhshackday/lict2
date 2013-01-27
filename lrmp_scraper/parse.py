@@ -15,7 +15,8 @@ with open('./example-html/' + inputFile, 'r') as f_in:
             info.append(td)
 
     column = 0
-    #keys = ['GMC Ref Number', 'Given Names', 'Surname', 'Status', 'Prov Reg Date', 'Full Reg Date', 'Annual Fee Due Date', '']
+    #keys = ['GMC Ref Number', 'Given Names', 'Surname', 'Status', 'Prov Reg Date',
+    #        'Full Reg Date', 'Annual Fee Due Date']
     # split on every 7th
     with open('./example-output.csv', 'w') as f_out:
         for result in info:
