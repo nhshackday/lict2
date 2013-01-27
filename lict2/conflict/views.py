@@ -1,9 +1,11 @@
 # Create your views here.
 from django.views.generic.base import RedirectView, TemplateView
+from django.http import HttpResponse
 from django.views.generic.list import ListView
 #from django.core.paginator import Paginator
 from .mongomodels import Doctor, Study
 import pdb
+import datetime
 
 class RootRedirect(RedirectView):
     url = "doctors/"
@@ -36,6 +38,9 @@ class SearchView(TemplateView):
     template_name = "conflict/search.html"
 
 
-class SearchViewResults(TemplateView):
+def SearchViewResults(request):
+    search = request.__dict__.get('META').get('QUERY_STRING')
 
-    template_name = "conflict/search_results.html"
+    html = "<html><body>Search: %s.</body></html>" % search
+    return HttpResponse(html)
+

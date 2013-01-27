@@ -11,6 +11,6 @@ urlpatterns = patterns('conflict.views',
     url(r'^doctors/interesting/$', InterestingDoctorListView.as_view()),
     url(r'^studies/$', StudyListView.as_view()),
     url(r'^search/$', SearchView.as_view()),
-    url(r'^search_results/', SearchViewResults.as_view()),
+    url(r'^search_results/', SearchViewResults),
     url(r'^$', LandingPage.as_view(), name="home")
 )
