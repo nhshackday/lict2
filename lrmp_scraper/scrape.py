@@ -98,12 +98,7 @@ def gen_request_params(session=None, swec=2, ids=[]):
 	}
 
 
-def scrape(queue):
-	try:
-		chunk = queue.get_nowait()
-	except Queue.Empty, e:
-		return
-
+def init_gmc():
 	# login #1
 	resp = requests.request(
 			method="GET",
@@ -153,8 +148,16 @@ def scrape(queue):
 			proxies = proxies,
 			data = gen_request_params(swec=swec, session=session),
 			)
+	return swec, session
 
+def scrape(queue):
+	swec, session = None, None
 	while True:
+		try:
+			chunk = queue.get_nowait()
+		except Queue.Empty, e:
+			return
+
 		fn_num = "%06i" % chunk
 		fn_nums = list(chunks(fn_num,2))
 		fn_nums[-1] += ".html"
@@ -164,6 +167,9 @@ def scrape(queue):
 		else:
 			if not os.path.exists(os.path.dirname(fn)):
 				os.makedirs(os.path.dirname(fn))
+
+			if not swec or not session:
+				swec, session = init_gmc()
 
 			swec = swec + 1
 			print "sending request for ids %06ix" % (chunk)
@@ -179,11 +185,6 @@ def scrape(queue):
 			f = open(fn, "w")
 			f.write(resp.text.encode('utf-8'))
 			f.close()
-		try:
-			chunk = queue.get_nowait()
-		except Queue.Empty, e:
-			return
-
 
 if len(sys.argv) == 3:
 	if sys.argv[1] == "launch":
@@ -208,7 +209,7 @@ if len(sys.argv) == 3:
 		for chunk in range(start, end):
 			q.put(chunk)
 
-		pool = multiprocessing.Pool(10, scrape, [q])
+		pool = multiprocessing.Pool(1000, scrape, [q])
 		pool.close()
 		pool.join()
 
