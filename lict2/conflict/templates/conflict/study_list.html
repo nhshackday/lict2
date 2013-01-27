@@ -13,7 +13,7 @@
         </thead>
         {% for study in study_list %}
             <tr>
-                <td>{{ study.ukcrn_id }}</td>
+                <td><a href="{{ study.url }}">{{ study.ukcrn_id }}</a></td>
                 <td>{{ study.name }}</td>
                 <td>{{ study.funder }}</td>
                 <td>{{ study.sponsor }}</td>

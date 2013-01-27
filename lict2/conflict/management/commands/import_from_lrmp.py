@@ -5,14 +5,20 @@
 # honcho -e live.env run python lict2/manage.py import_from_lrmp lrmp_scraper/example-html/*
 
 from __future__ import print_function, division, absolute_import, unicode_literals
-import csv
 import logging
-import pdb
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
-from conflict.mongomodels import Doctor
+from conflict.mongomodels import Doctor, Study
+import re
 
 logger = logging.getLogger(__name__)
+
+def post_hoc_fiddling(doctor):
+    approximate_doctor_first_name = doctor.given_names.split()[0]
+    approximate_doctor_name = "%s %s" % (approximate_doctor_first_name, doctor.surname)
+    possible_studies = Study.objects.filter(chief_investigator__contains=re.compile(approximate_doctor_name))
+    doctor.studies = possible_studies
+    doctor.save()
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
@@ -74,6 +80,7 @@ class Command(BaseCommand):
                         if column == 7:
                             doctor.save()
                             column = 0
+                            post_hoc_fiddling(doctor)
                 except Exception as e:  # Kristian is A VERY VERY BAD PERSON
                     logger.warn(e)
 
