@@ -40,10 +40,12 @@ class SearchView(TemplateView):
 
 
 def SearchViewResults(request):
-    search = request.__dict__.get('META').get('QUERY_STRING')
-    if search:
-        html = "<html><body>Search: %s.</body></html>" % search
-        return HttpResponse(html)
+    search_param = request.GET.get('search')
+    if search_param:
+        def get_queryset(self):
+            return Doctor.objects.where(surname=search_param).order_by("surname")
+
+        return render_to_response("conflict/doctor_list.html", {"searching": "Searching for '%s'" % search_param})
     else:
         return render_to_response("conflict/search.html")
 

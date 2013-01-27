@@ -2,6 +2,8 @@
 
 {% block content %}
     <h1>List of Registered Medical Practitioners</h1>
+    {{ searching }} <!-- this comes from the search view -->
+    {% include 'conflict/_search_form.html' %}
     <table class="doctors">
         <thead>
             <tr>
