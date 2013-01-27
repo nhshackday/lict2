@@ -1,1 +1,9 @@
-{{ doctor_list }}
+<table>
+    {% for doctor in doctor_list %}
+        <tr>
+            <td>{{ doctor.gmc_reference_number }}</td>
+            <td>{{ doctor.given_names }}</td>
+            <td>{{ doctor.surname }}</td>
+        </tr>
+    {% endfor %}
+</table>
