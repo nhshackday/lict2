@@ -2,6 +2,7 @@
 from django.views.generic.base import RedirectView, TemplateView
 from django.http import HttpResponse
 from django.views.generic.list import ListView
+from django.shortcuts import render_to_response
 #from django.core.paginator import Paginator
 from .mongomodels import Doctor, Study
 import pdb
@@ -40,7 +41,9 @@ class SearchView(TemplateView):
 
 def SearchViewResults(request):
     search = request.__dict__.get('META').get('QUERY_STRING')
-
-    html = "<html><body>Search: %s.</body></html>" % search
-    return HttpResponse(html)
+    if search:
+        html = "<html><body>Search: %s.</body></html>" % search
+        return HttpResponse(html)
+    else:
+        return render_to_response("conflict/search.html")
 
