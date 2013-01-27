@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf8
+import Queue
 import os
 import sys
 import requests
@@ -7,6 +8,7 @@ import re
 import datetime
 import time
 import pprint
+import multiprocessing
 
 proxies = { "http": "http://localhost:8888/" }
 proxies = None
@@ -96,7 +98,12 @@ def gen_request_params(session=None, swec=2, ids=[]):
 	}
 
 
-def scrape(chunk_list):
+def scrape(queue):
+	try:
+		chunk = queue.get_nowait()
+	except Queue.Empty, e:
+		return
+
 	# login #1
 	resp = requests.request(
 			method="GET",
@@ -147,57 +154,63 @@ def scrape(chunk_list):
 			data = gen_request_params(swec=swec, session=session),
 			)
 
-	for chunk in chunk_list:
+	while True:
 		fn_num = "%06i" % chunk
 		fn_nums = list(chunks(fn_num,2))
 		fn_nums[-1] += ".html"
 		fn = os.path.join("data", *fn_nums)
 		if os.path.exists(fn):
 			print "skipping for ids %06ix" % (chunk)
-			continue
+		else:
+			if not os.path.exists(os.path.dirname(fn)):
+				os.makedirs(os.path.dirname(fn))
 
-		if not os.path.exists(os.path.dirname(fn)):
-			os.makedirs(os.path.dirname(fn))
+			swec = swec + 1
+			print "sending request for ids %06ix" % (chunk)
+			id_chunk = range(chunk * 10, (chunk+1)*10)
+			id_strs = ["%07i" % i for i in id_chunk]
+			resp = requests.request(
+					method="POST",
+					url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
+					proxies = proxies,
+					data = gen_request_params(swec=swec, session=session, ids=id_strs),
+					)
 
-		swec = swec + 1
-		print "sending request for ids %06ix" % (chunk)
-		id_chunk = range(chunk * 10, (chunk+1)*10)
-		id_strs = ["%07i" % i for i in id_chunk]
-		resp = requests.request(
-				method="POST",
-				url="http://webcache.gmc-uk.org/gmclrmp_enu/start.swe",
-				proxies = proxies,
-				data = gen_request_params(swec=swec, session=session, ids=id_strs),
-				)
+			f = open(fn, "w")
+			f.write(resp.text.encode('utf-8'))
+			f.close()
+		try:
+			chunk = queue.get_nowait()
+		except Queue.Empty, e:
+			return
 
-		f = open(fn, "w")
-		f.write(resp.text.encode('utf-8'))
-		f.close()
 
 if len(sys.argv) == 3:
 	if sys.argv[1] == "launch":
 		prefix=int(sys.argv[2])
-		if prefix > 10:
+
+		if prefix > 9:
 			print "Prefix too big"
 			sys.exit(1)
-		scrape([prefix*100000]) # warm stuff up
-		pids = []
-		for proc in range(0,1000):
-			pid = os.fork()
-			if pid:
-				pids += [pid]
-			else:
-				prefix2 = prefix * 1000 + proc # e.g. 5099
-				start = prefix2 * 100
-				end = (prefix2+1) * 100
-				scrape(range(start, end))
-				sys.exit(0)
-		for pid in pids:
-			os.waitpid(pid, 0)
+
+		q = multiprocessing.Queue()
+		for chunk in range(prefix*100000, (prefix+1)*100000):
+			q.put(chunk)
+
+		pool = multiprocessing.Pool(1000, scrape, [q])
+		pool.close()
+		pool.join()
+
 	else:
 		start = int(sys.argv[1])
 		end = int(sys.argv[2])
-		scrape(range(start, end))
+		q = multiprocessing.Queue()
+		for chunk in range(start, end):
+			q.put(chunk)
+
+		pool = multiprocessing.Pool(10, scrape, [q])
+		pool.close()
+		pool.join()
 
 
 
