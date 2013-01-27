@@ -13,7 +13,7 @@
         </thead>
         {% for study in study_list %}
             <tr>
-                <td>{{ study.ukcrn_id }}</td>
+                <td><a href="{{ study.url }}">{{ study.ukcrn_id }}</a></td>
                 <td>{{ study.name }}</td>
                 <td>{{ study.funder }}</td>
                 <td>{{ study.sponsor }}</td>
@@ -25,7 +25,7 @@
     <div class="pagination">
         <span class="step-links">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous {{ page_obj.paginator.per_page }}</a>
             {% endif %}
 
             <span class="current">
@@ -33,7 +33,7 @@
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.next_page_number }}">next {{ page_obj.paginator.per_page }}</a>
             {% endif %}
         </span>
     </div>

@@ -15,6 +15,14 @@
                 <td>{{ doctor.gmc_reference_number }}</td>
                 <td>{{ doctor.given_names }}</td>
                 <td>{{ doctor.surname }}</td>
+                <td>
+                    <ul>
+                        {% for study in doctor.studies %}
+                            <li>{{ study.funder }}</li>
+                            <li>{{ study.sponsor}}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
             </tr>
         {% endfor %}
     </table>
@@ -22,7 +30,7 @@
     <div class="pagination">
         <span class="step-links">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous {{ page_obj.paginator.per_page }}</a>
             {% endif %}
 
             <span class="current">
@@ -30,7 +38,7 @@
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.next_page_number }}">next {{ page_obj.paginator.per_page }}</a>
             {% endif %}
         </span>
     </div>

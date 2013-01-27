@@ -2,7 +2,7 @@
 
 from __future__ import print_function, division, absolute_import, unicode_literals
 from mongoengine.document import Document
-from mongoengine.fields import StringField, IntField, DateTimeField
+from mongoengine.fields import StringField, IntField, DateTimeField, ReferenceField, ListField
 
 class Doctor(Document):
     """
@@ -13,6 +13,7 @@ class Doctor(Document):
     given_names = StringField()
     gmc_reference_number = IntField(unique=True)
     registration_date = StringField()
+    studies = ListField(ReferenceField('Study'))
 
 class Study(Document):
     """
