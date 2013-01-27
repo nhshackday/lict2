@@ -148,6 +148,9 @@ def scrape(chunk_list):
 			)
 
 	for chunk in chunk_list:
+		fn_num = "%06i" % chunk
+		fn_nums = list(chunks(fn_num,2))
+		fn_nums[-1] += ".html"
 		fn = os.path.join("data", *fn_nums)
 		if os.path.exists(fn):
 			print "skipping for ids %06ix" % (chunk)
@@ -167,9 +170,6 @@ def scrape(chunk_list):
 				data = gen_request_params(swec=swec, session=session, ids=id_strs),
 				)
 
-		fn_num = "%06i" % chunk
-		fn_nums = list(chunks(fn_num,2))
-		fn_nums[-1] += ".html"
 		f = open(fn, "w")
 		f.write(resp.text.encode('utf-8'))
 		f.close()
