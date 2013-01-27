@@ -25,3 +25,8 @@ class StudyListView(ListView):
 
 class LandingPage(TemplateView):
     template_name = "conflict/landing_page.html"
+
+
+class InterestingDoctorListView(DoctorListView):
+    def get_queryset(self):
+        return Doctor.objects.filter(studies__exists=True)
