@@ -1,5 +1,9 @@
 # -*- coding: UTF-8 -*-
 
+# converts the .html LRMP files to mongo entries
+# run with:
+# honcho -e live.env run python lict2/manage.py import_from_lrmp lrmp_scraper/example-html/*
+
 from __future__ import print_function, division, absolute_import, unicode_literals
 import csv
 import logging
@@ -12,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        Doctor.objects.delete() #TODO Sanity
         for html_file_name in args:
             logger.info("Starting import from %s" % html_file_name)
-            #Doctor.objects.delete() #TODO Sanity
             with open(html_file_name, 'rb') as html_file:
                 html_doc = html_file.read()
                 doc = BeautifulSoup(html_doc)
