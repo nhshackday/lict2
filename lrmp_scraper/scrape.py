@@ -148,8 +148,16 @@ def scrape(chunk_list):
 			)
 
 	for chunk in chunk_list:
+		fn = os.path.join("data", *fn_nums)
+		if os.path.exists(fn):
+			print "skipping for ids %06ix" % (chunk)
+			continue
+
+		if not os.path.exists(os.path.dirname(fn)):
+			os.makedirs(os.path.dirname(fn))
+
 		swec = swec + 1
-		print "sending request for swec %i" % swec
+		print "sending request for ids %06ix" % (chunk)
 		id_chunk = range(chunk * 10, (chunk+1)*10)
 		id_strs = ["%07i" % i for i in id_chunk]
 		resp = requests.request(
@@ -162,13 +170,34 @@ def scrape(chunk_list):
 		fn_num = "%06i" % chunk
 		fn_nums = list(chunks(fn_num,2))
 		fn_nums[-1] += ".html"
-		fn = os.path.join("data", *fn_nums)
-		if not os.path.exists(os.path.dirname(fn)):
-			os.makedirs(os.path.dirname(fn))
 		f = open(fn, "w")
 		f.write(resp.text.encode('utf-8'))
 		f.close()
 
 if len(sys.argv) == 3:
-	scrape(range(int(sys.argv[1]), int(sys.argv[2])))
+	if sys.argv[1] == "launch":
+		prefix=int(sys.argv[2])
+		if prefix > 10:
+			print "Prefix too big"
+			sys.exit(1)
+		scrape([prefix*100000]) # warm stuff up
+		pids = []
+		for proc in range(0,1000):
+			pid = os.fork()
+			if pid:
+				pids += [pid]
+			else:
+				prefix2 = prefix * 1000 + proc # e.g. 5099
+				start = prefix2 * 100
+				end = (prefix2+1) * 100
+				scrape(range(start, end))
+				sys.exit(0)
+		for pid in pids:
+			os.waitpid(pid, 0)
+	else:
+		start = int(sys.argv[1])
+		end = int(sys.argv[2])
+		scrape(range(start, end))
+
+
 
