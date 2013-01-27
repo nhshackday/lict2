@@ -11,5 +11,5 @@ class Doctor(Document):
     """
     surname = StringField()
     given_names = StringField()
-    gmc_reference_number = IntField()
+    gmc_reference_number = IntField(unique=True)
     registration_date = DateTimeField()
