@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response
 from .mongomodels import Doctor, Study
 import pdb
 import datetime
+import re
 
 class RootRedirect(RedirectView):
     url = "doctors/"
@@ -17,7 +18,7 @@ class DoctorListView(ListView):
         term = self.request.GET.get('search')
         queryset = Doctor.objects.all().order_by("surname")
         if term:
-            queryset = queryset.filter(surname=term)
+            queryset = queryset.filter(surname__icontains=term)
         return queryset
     paginate_by = 50
     context_object_name = 'doctor_list'
@@ -36,7 +37,7 @@ class LandingPage(TemplateView):
 
 class InterestingDoctorListView(DoctorListView):
     def get_queryset(self):
-        return super(self, InterestingDoctorListView).filter(studies__exists=True)
+        return super(InterestingDoctorListView, self).get_queryset().filter(studies__exists=True)
 
 
 def searchViewResults(request):
